@@ -2,6 +2,7 @@
 #include "assert.h"
 
 uint32_t obdd_mgr_greatest_ID = 0;
+
 /** DICTIONARY FUNCTIONS **/
 struct dictionary_t* dictionary_create(){
 	struct dictionary_t* new_dict	= malloc(sizeof(struct dictionary_t));
@@ -33,9 +34,27 @@ bool dictionary_has_key(struct dictionary_t* dict, char* key){
 }
 
 
+void dictionary_duplicate_size (struct dictionary_t* dict) {
+        assert(!sum_overflow(dict -> max_size, dict -> max_size));
+        uint32_t nlen = (dict -> max_size) * 2;
+        struct dictionary_entry_t* entries;
+        entries = malloc (sizeof(struct dictionary_entry_t) * nlen);
+        
+        uint32_t i;
+        for (i = 0; i < dict -> size; i++)
+                entries [i] = dict -> entries [i];
+        free (dict -> entries);
+        dict -> entries = entries;
+}
+
 uint32_t dictionary_add_entry(struct dictionary_t* dict, char* key){
-	// TODO: implementar funcion
-	return 0;
+        // TODO: implementar funcion
+        if (dict -> size == dict -> max_size) 
+                dictionary_duplicate_size (dict);
+        *(dict -> entries [dict -> size] . key) = *key;
+        dict -> size ++;
+        
+	return dict -> size - 1;
 }
 
 uint32_t dictionary_value_for_key(struct dictionary_t* dict, char *key){
@@ -470,3 +489,7 @@ int32_t str_cmp(char* a, char* b) {
   return 0
 }
 **/
+
+int sum_overflow (uint32_t x, uint32_t y) {
+        return x > ~(uint32_t)0 - y;
+}

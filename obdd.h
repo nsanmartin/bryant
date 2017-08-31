@@ -17,8 +17,8 @@ typedef enum { false, true } bool;
 
 
 struct dictionary_entry_t {
-    char *key;
-    uint32_t value;
+        char *key;
+        uint32_t value;
 } __attribute__((__packed__)) dictionary_entry;
 
 struct dictionary_t{
@@ -58,6 +58,7 @@ bool dictionary_has_key(struct dictionary_t* dict, char *key);
 uint32_t dictionary_add_entry(struct dictionary_t* dict, char* key);
 uint32_t dictionary_value_for_key(struct dictionary_t* dict, char *key);
 char* dictionary_key_for_value(struct dictionary_t* dict, uint32_t value);
+void dictionary_duplicate_size (struct dictionary_t* dict);
 /** GLOBAL **/
 
 uint32_t get_next_mgr_ID();
@@ -112,4 +113,5 @@ uint32_t str_len(char* a);
 char* str_copy(char* a);
 int32_t str_cmp(char* a, char* b);
 
+int sum_overflow (uint32_t x, uint32_t y);
 #endif
