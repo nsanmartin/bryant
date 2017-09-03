@@ -12,7 +12,6 @@ extern  obdd_mgr_get_next_node_ID
 %define MNG_VARS_DICT_OFFSET 28
 %define MNG_SIZE 36
         
-        
 %define MNG_ID(ptr) [ptr]
 %define MNG_GREATEST_NODE_ID(ptr) [ptr + MNG_GREATEST_NODE_ID_OFFSET]
 %define MNG_GREATEST_VAR_ID(ptr) [ptr + MNG_GREATEST_VAR_ID_OFFSET]
@@ -34,6 +33,14 @@ extern  obdd_mgr_get_next_node_ID
 %define OBDD_NODE_HIGH(ptr) [ptr + OBDD_NODE_HIGH_OBDD_OFFSET]
 %define OBDD_NODE_LOW(ptr) [ptr + OBDD_NODE_LOW_OBDD_OFFSET]
 
+;; OBDD
+%define OBDD_MNG_OFFSET 0
+%define OBDD_ROOT_OFFSET 8
+
+%define OBDD_MNG(ptr) [ptr + OBDD_MNG_OFFSET]
+%define OBDD_ROOT(ptr) [ptr + OBDD_ROOT_OFFSET]
+        
+        
 
         
 global obdd_mgr_mk_node
@@ -118,6 +125,26 @@ obdd_create:
 
 global obdd_destroy
 obdd_destroy:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        push r12
+
+        mov r12, rdi            ; r12 <- &root 
+        mov rbx, OBDD_ROOT(rdi) ; rbx <- root -> root_obdd
+        cmp rbx, 0x0
+        je .return
+        mov rdi, rbx
+        call obdd_node_destroy
+        mov qword OBDD_ROOT(r12), 0x0
+.return:
+        mov qword OBDD_MNG(r12), 0x0
+        mov rdi, r12
+        call free
+        
+        pop r12
+        pop rbx
+        pop rbp
         ret
 
 global obdd_node_apply
