@@ -3,3 +3,8 @@ main
 tester
 *.o
 TAGS
+*.zip
+tp1
+aux
+*~
+*#*

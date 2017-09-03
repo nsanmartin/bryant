@@ -3,12 +3,15 @@ CFLAGS= -Wall -Wextra -pedantic -O0 -g -lm -Wno-unused-variable -Wno-unused-para
 NASM=nasm
 NASMFLAGS=-f elf64 -g -F DWARF
 
-all: main tester
+all: main tester tester2
 
 main: main.c obdd_c.o obdd_asm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 tester: tester.c obdd_c.o obdd_asm.o
+	$(CC) $(CFLAGS) $^ -o $@
+
+tester2: tester2.c obdd_c.o obdd_asm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 obdd_asm.o: obdd.asm
@@ -20,5 +23,5 @@ obdd_c.o: obdd.c
 clean:
 	rm -f *.o
 	rm -f main tester
-	rm -f salida.caso.*
+#	rm -f salida.caso.*
 

@@ -2,7 +2,6 @@
 #include "assert.h"
 
 uint32_t obdd_mgr_greatest_ID = 0;
-
 /** DICTIONARY FUNCTIONS **/
 struct dictionary_t* dictionary_create(){
 	struct dictionary_t* new_dict	= malloc(sizeof(struct dictionary_t));
@@ -21,6 +20,7 @@ void dictionary_destroy(struct dictionary_t* dict){
 	dict->entries	= NULL;
 	dict->size 		= 0;
 	dict->max_size	= 0;
+	free(dict);
 }
 
 bool dictionary_has_key(struct dictionary_t* dict, char* key){
@@ -34,27 +34,27 @@ bool dictionary_has_key(struct dictionary_t* dict, char* key){
 }
 
 
-void dictionary_duplicate_size (struct dictionary_t* dict) {
-        assert(!sum_overflow(dict -> max_size, dict -> max_size));
-        uint32_t nlen = (dict -> max_size) * 2;
-        struct dictionary_entry_t* entries;
-        entries = malloc (sizeof(struct dictionary_entry_t) * nlen);
-        
+void dictionary_duplicate (struct dictionary_t* dict) {
+        assert (!(0x80000000 & dict -> max_size)); // !overflow
+        dict -> max_size <<= 1;
+        struct dictionary_entry_t *entries;
+        entries = malloc (sizeof(struct dictionary_entry_t) * dict -> max_size);
         uint32_t i;
-        for (i = 0; i < dict -> size; i++)
-                entries [i] = dict -> entries [i];
+        for (i = 0; i < dict -> size; i++) {
+                entries[i] = dict -> entries[i];
+        }
         free (dict -> entries);
         dict -> entries = entries;
 }
 
 uint32_t dictionary_add_entry(struct dictionary_t* dict, char* key){
-        // TODO: implementar funcion
-        if (dict -> size == dict -> max_size) 
-                dictionary_duplicate_size (dict);
-        *(dict -> entries [dict -> size] . key) = *key;
+        if (dict -> size == dict -> max_size)
+                dictionary_duplicate (dict);
+        uint32_t res = dict -> size;
         dict -> size ++;
-        
-	return dict -> size - 1;
+        dict -> entries [res] . key = str_copy (key);
+        dict -> entries [res] . value = res;
+	return res;
 }
 
 uint32_t dictionary_value_for_key(struct dictionary_t* dict, char *key){
@@ -133,22 +133,23 @@ uint32_t obdd_mgr_get_next_node_ID(obdd_mgr* mgr){
 	return previous_ID;
 }
 
-/** implementar en ASM
-obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node* low){
-	uint32_t var_ID		= dictionary_add_entry(mgr->vars_dict, var);
-	obdd_node* new_node	= malloc(sizeof(obdd_node));
-	new_node->var_ID	= var_ID;
-	new_node->node_ID	= obdd_mgr_get_next_node_ID(mgr);
-	new_node->high_obdd	= high;
-	if(high != NULL)
-		high->ref_count++;
-	new_node->low_obdd	= low;
-	if(low != NULL)
-		low->ref_count++;
-	new_node->ref_count	= 0;
-	return new_node;
-}
-**/
+/* implementar en ASM */
+/* obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, */
+/*                             obdd_node* high, obdd_node* low){ */
+/* 	uint32_t var_ID		= dictionary_add_entry(mgr->vars_dict, */
+/*                                                        var); */
+/* 	obdd_node* new_node	= malloc(sizeof(obdd_node)); */
+/* 	new_node->var_ID	= var_ID; */
+/* 	new_node->node_ID	= obdd_mgr_get_next_node_ID(mgr); */
+/* 	new_node->high_obdd	= high; */
+/* 	if(high != NULL) */
+/* 		high->ref_count++; */
+/* 	new_node->low_obdd	= low; */
+/* 	if(low != NULL) */
+/* 		low->ref_count++; */
+/* 	new_node->ref_count	= 0; */
+/* 	return new_node; */
+/* } */
 
 obdd*	obdd_mgr_var(obdd_mgr* mgr, char* name){
 	obdd* var_obdd	= malloc(sizeof(obdd));
@@ -489,7 +490,3 @@ int32_t str_cmp(char* a, char* b) {
   return 0
 }
 **/
-
-int sum_overflow (uint32_t x, uint32_t y) {
-        return x > ~(uint32_t)0 - y;
-}
