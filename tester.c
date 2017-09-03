@@ -83,11 +83,11 @@ void casoObddChico() {
 	obdd* x1_obdd		= obdd_mgr_var(new_mgr, "x1");
 	obdd* x2_obdd		= obdd_mgr_var(new_mgr, "x2");
 	obdd* x3_obdd		= obdd_mgr_var(new_mgr, "x3");
-    	
+
 	obdd* x2_or_x3_obdd	= obdd_apply_or(x2_obdd, x3_obdd);
+        puts("hola");    	
 	obdd* not_x2_or_x3_obdd	= obdd_apply_not(x2_or_x3_obdd);
 	obdd* eq1_obdd		= obdd_apply_and(x1_obdd, not_x2_or_x3_obdd);
-
 	obdd_print(eq1_obdd);
 
 	obdd* not_x2_obdd	= obdd_apply_not(x2_obdd);
@@ -100,7 +100,7 @@ void casoObddChico() {
 	obdd* eq1_eq_eq2_obdd	= obdd_apply_equals(eq1_obdd, eq2_obdd);
 	
 	obdd_print(eq1_eq_eq2_obdd);
-
+        
 	printf("eq1 == eq2 sat? : %s \n", is_sat(new_mgr, eq1_eq_eq2_obdd->root_obdd) ? "yes" : "no");
 	printf("eq1 == eq2 taut? : %s \n", is_tautology(new_mgr, eq1_eq_eq2_obdd->root_obdd) ? "yes" : "no");
 

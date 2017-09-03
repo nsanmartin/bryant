@@ -36,7 +36,8 @@ extern  obdd_mgr_get_next_node_ID
 ;; OBDD
 %define OBDD_MNG_OFFSET 0
 %define OBDD_ROOT_OFFSET 8
-
+%define OBDD_SIZE 16
+        
 %define OBDD_MNG(ptr) [ptr + OBDD_MNG_OFFSET]
 %define OBDD_ROOT(ptr) [ptr + OBDD_ROOT_OFFSET]
         
@@ -89,7 +90,7 @@ obdd_mgr_mk_node:
         mov OBDD_NODE_HIGH(rax), r14
         cmp r14, 0
         je .set_low
-        inc dword OBDD_NODE_REF_COUNT(r14) ;
+        inc dword OBDD_NODE_REF_COUNT(r14) 
 .set_low: 
         mov OBDD_NODE_LOW(rax), r15
         cmp r15, 0
@@ -121,6 +122,22 @@ obdd_node_destroy:
 
 global obdd_create
 obdd_create:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        push r12
+
+        mov rbx, rdi            ; rbx <- mgr
+        mov r12, rsi            ; r12 <- root
+
+        mov rdi, OBDD_SIZE
+        call malloc
+        mov OBDD_MNG(rax), rbx
+        mov OBDD_ROOT(rax), r12
+
+        pop r12
+        pop rbx
+        pop rbp
         ret
 
 global obdd_destroy
