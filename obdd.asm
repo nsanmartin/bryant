@@ -2,22 +2,27 @@
 extern free
 extern malloc
 extern dictionary_add_entry
-extern  obdd_mgr_get_next_node_ID
+extern obdd_mgr_get_next_node_ID
+extern dictionary_key_for_value
+extern is_constant
+extern is_true
+
+
 ;; OBDD MANAGER
-%define MNG_ID_OFFSET 0
-%define MNG_GREATEST_NODE_ID_OFFSET 4
-%define MNG_GREATEST_VAR_ID_OFFSET 8
-%define MNG_TRUE_OBDD_OFFSET 12
-%define MNG_FALSE_OBDD_OFFSET 20
-%define MNG_VARS_DICT_OFFSET 28
-%define MNG_SIZE 36
+%define MGR_ID_OFFSET 0
+%define MGR_GREATEST_NODE_ID_OFFSET 4
+%define MGR_GREATEST_VAR_ID_OFFSET 8
+%define MGR_TRUE_OBDD_OFFSET 12
+%define MGR_FALSE_OBDD_OFFSET 20
+%define MGR_VARS_DICT_OFFSET 28
+%define MGR_SIZE 36
         
-%define MNG_ID(ptr) [ptr]
-%define MNG_GREATEST_NODE_ID(ptr) [ptr + MNG_GREATEST_NODE_ID_OFFSET]
-%define MNG_GREATEST_VAR_ID(ptr) [ptr + MNG_GREATEST_VAR_ID_OFFSET]
-%define MNG_TRUE_OBDD(ptr) [ptr + MNG_TRUE_OBDD_OFFSET]
-%define MNG_FALSE_OBDD(ptr) [ptr + MNG_FALSE_OBDD_OFFSET]
-%define MNG_VARS_DICT(ptr) [ptr + MNG_VARS_DICT_OFFSET ]
+%define MGR_ID(ptr) dword [ptr]       
+%define MGR_GREATEST_NODE_ID(ptr) dword [ptr + MGR_GREATEST_NODE_ID_OFFSET]
+%define MGR_GREATEST_VAR_ID(ptr) dword [ptr + MGR_GREATEST_VAR_ID_OFFSET]
+%define MGR_TRUE_OBDD(ptr) qword [ptr + MGR_TRUE_OBDD_OFFSET]
+%define MGR_FALSE_OBDD(ptr) qword [ptr + MGR_FALSE_OBDD_OFFSET]
+%define MGR_VARS_DICT(ptr) qword [ptr + MGR_VARS_DICT_OFFSET ]
 
 ;; OBDD NODE
 %define OBDD_NODE_VAR_ID_OFFSET 0 
@@ -27,19 +32,19 @@ extern  obdd_mgr_get_next_node_ID
 %define OBDD_NODE_LOW_OBDD_OFFSET 20
 %define OBDD_NODE_SIZE 28
         
-%define OBDD_NODE_VAR_ID(ptr) [ptr + OBDD_NODE_VAR_ID_OFFSET]
-%define OBDD_NODE_NODE_ID(ptr) [ptr + OBDD_NODE_NODE_ID_OFFSET]
-%define OBDD_NODE_REF_COUNT(ptr) [ptr +OBDD_NODE_REF_COUNT_OFFSET]
-%define OBDD_NODE_HIGH(ptr) [ptr + OBDD_NODE_HIGH_OBDD_OFFSET]
-%define OBDD_NODE_LOW(ptr) [ptr + OBDD_NODE_LOW_OBDD_OFFSET]
+%define OBDD_NODE_VAR_ID(ptr) dword [ptr + OBDD_NODE_VAR_ID_OFFSET]
+%define OBDD_NODE_NODE_ID(ptr) dword [ptr + OBDD_NODE_NODE_ID_OFFSET]
+%define OBDD_NODE_REF_COUNT(ptr) dword [ptr +OBDD_NODE_REF_COUNT_OFFSET]
+%define OBDD_NODE_HIGH(ptr) qword [ptr + OBDD_NODE_HIGH_OBDD_OFFSET]
+%define OBDD_NODE_LOW(ptr) qword [ptr + OBDD_NODE_LOW_OBDD_OFFSET]
 
 ;; OBDD
-%define OBDD_MNG_OFFSET 0
+%define OBDD_MGR_OFFSET 0
 %define OBDD_ROOT_OFFSET 8
 %define OBDD_SIZE 16
         
-%define OBDD_MNG(ptr) [ptr + OBDD_MNG_OFFSET]
-%define OBDD_ROOT(ptr) [ptr + OBDD_ROOT_OFFSET]
+%define OBDD_MGR(ptr) qword [ptr + OBDD_MGR_OFFSET]
+%define OBDD_ROOT(ptr) qword [ptr + OBDD_ROOT_OFFSET]
         
         
 
@@ -64,6 +69,8 @@ global obdd_mgr_mk_node
 ;; 	return new_node;
 ;; }
 ;; **/
+TRUE_VAR:    DB '1', 0
+FALSE_VAR: DB '0',0
 
 obdd_mgr_mk_node:
         push rbp
@@ -90,22 +97,22 @@ obdd_mgr_mk_node:
         mov OBDD_NODE_HIGH(rax), r14
         cmp r14, 0
         je .set_low
-        inc dword OBDD_NODE_REF_COUNT(r14) 
+        inc OBDD_NODE_REF_COUNT(r14) 
 .set_low: 
         mov OBDD_NODE_LOW(rax), r15
         cmp r15, 0
         je .set_var_id
-        inc dword OBDD_NODE_REF_COUNT(r15)
+        inc OBDD_NODE_REF_COUNT(r15)
 .set_var_id:
         mov r14, rax            ; guardo el puntero al nodo nuevo
-        mov rdi, MNG_VARS_DICT(rbx) ; prim param a add_entry
+        mov rdi, MGR_VARS_DICT(rbx) ; prim param a add_entry
         mov rsi, r12            ; seg param  a add_entry
         call dictionary_add_entry
-        mov OBDD_NODE_VAR_ID(r14), rax
+        mov OBDD_NODE_VAR_ID(r14), eax
 .set_node_id:
         mov rdi, rbx            ;1er param es mgr
         call obdd_mgr_get_next_node_ID
-        mov OBDD_NODE_NODE_ID(r14), rax
+        mov OBDD_NODE_NODE_ID(r14), eax
 .return:
         mov rax, r14
         pop r15
@@ -132,7 +139,7 @@ obdd_create:
 
         mov rdi, OBDD_SIZE
         call malloc
-        mov OBDD_MNG(rax), rbx
+        mov OBDD_MGR(rax), rbx
         mov OBDD_ROOT(rax), r12
 
         pop r12
@@ -155,7 +162,7 @@ obdd_destroy:
         call obdd_node_destroy
         mov qword OBDD_ROOT(r12), 0x0
 .return:
-        mov qword OBDD_MNG(r12), 0x0
+        mov qword OBDD_MGR(r12), 0x0
         mov rdi, r12
         call free
         
@@ -165,9 +172,154 @@ obdd_destroy:
         ret
 
 global obdd_node_apply
+%define LEFT_VAR qword [rbp- 0x8]
+%define RIGHT_VAR qword [rbp - 0x10]
+%define IS_LEFT_CONST qword [rbp - 0x18]
+%define IS_RIGHT_CONST qword [rbp - 0x20]
+;;%define NODES_ARE_TRUE [rsp + 0x20]
+        
 obdd_node_apply:
+        push rbp
+        push rbx
+        push r12
+        push r13
+        push r14
+        push r15
+
+;; reservo para variables locales
+;; [rsp], 
+        mov rbp, rsp
+        sub rsp, 0x28           ; 0x20 == sizeof(void*) * 4
+        
+        mov rbx, rdi            ; rbx <- apply_fkt
+        mov r12, rsi            ; r12 <- mgr
+        mov r14, rdx            ; r14 <- left_node
+        mov r15, rcx            ; r15 <- right_node
+
+;; LEFT_VAR <- dictionary_key_for_value(mgr->vars_dict,left_var_ID);
+        mov rdi, MGR_VARS_DICT(r12)
+        ;;xor rsi, rsi?
+        mov esi, OBDD_NODE_VAR_ID(r14)
+        call dictionary_key_for_value
+        mov LEFT_VAR, rax
+
+;; RIGHT_VAR <- dictionary_key_for_value(mgr->vars_dict,right_var_ID);
+        mov rdi, MGR_VARS_DICT(r12)
+        ;;xor rsi, rsi?
+        mov esi, OBDD_NODE_VAR_ID(r15)
+        call dictionary_key_for_value 
+        mov RIGHT_VAR, rax
+
+        mov rdi, r12
+        mov rsi, r14
+        xor rax, rax
+        call is_constant
+        mov IS_LEFT_CONST, rax
+        
+        mov rdi, r12
+        mov rsi, r15
+        xor rax, rax
+        call is_constant
+        mov IS_RIGHT_CONST, rax
+
+        and rax, IS_LEFT_CONST
+        jz .l_and_r_const_false
+
+        mov rdi, r12
+        mov rsi, r14
+        call is_true
+        mov r13, rax            ; r13 <- is_true(left)
+        
+        mov rdi, r12
+        mov rsi, r15
+        call is_true            ; rax <- is_true(right)
+
+        mov rdi, r13
+        mov rsi, rax
+        call rbx
+
+        cmp rax, 0
+        jne .ret_mk_node_true
+        jmp .ret_mk_node_false
+
+
+.l_and_r_const_false:
+        cmp IS_LEFT_CONST,0
+        jne .is_left_constant
+        cmp IS_RIGHT_CONST,0
+        jne .is_right_constant
+        mov r13d, OBDD_NODE_VAR_ID(r14) ; r13 <- left_var_ID
+        cmp r13d, OBDD_NODE_VAR_ID(r15) ; 
+        je .l_var_eq_r_var
+        jl .l_var_less_than_r_var
+        jmp .l_var_gter_than_r_var
+
+        
+.is_left_constant:
+        mov rdi, rbx
+        mov rsi, r12
+        mov rdx, r14
+        mov rcx, OBDD_NODE_HIGH(r15)
+        call obdd_node_apply
+        mov r13, rax
+
+        mov rdi, rbx
+        mov rsi, r12
+        mov rdx, r14
+        mov rcx, OBDD_NODE_LOW(r15)
+        call obdd_node_apply
+
+        mov rdi, r12
+        mov rsi, RIGHT_VAR
+        mov rdx, r13
+        mov rcx, rax
+        call obdd_mgr_mk_node
+        jmp .return
+
+.is_right_constant:
+        jmp .return
+        
+.l_var_eq_r_var:
+        jmp .return
+
+.l_var_less_than_r_var:
+        jmp .return
+
+.l_var_gter_than_r_var:         ; else
+        jmp .return
+
+.ret_mk_node_true:
+        mov rdi, r12
+        mov rsi, TRUE_VAR
+        mov rdx, 0x0
+        mov rcx, 0x0
+        call obdd_mgr_mk_node
+        jmp .return
+
+.ret_mk_node_false:
+        mov rdi, r12
+        mov rsi, FALSE_VAR
+        mov rdx, 0x0
+        mov rcx, 0x0
+        call obdd_mgr_mk_node
+        jmp .return
+        
+.return:
+        add rsp, 0x28
+        pop r15
+        pop r14
+        pop r13
+        pop r12
+        pop rbx
+        pop rbp
         ret
 
+%undef LEFT_VAR
+%undef RIGHT_VAR
+%undef IS_LEFT_CONST
+%undef IS_RIGHT_CONST
+
+        
 global is_tautology
 is_tautology:
         ret
