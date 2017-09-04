@@ -85,7 +85,7 @@ void casoObddChico() {
 	obdd* x3_obdd		= obdd_mgr_var(new_mgr, "x3");
 
 	obdd* x2_or_x3_obdd	= obdd_apply_or(x2_obdd, x3_obdd);
-        puts("hola");    	
+
 	obdd* not_x2_or_x3_obdd	= obdd_apply_not(x2_or_x3_obdd);
 	obdd* eq1_obdd		= obdd_apply_and(x1_obdd, not_x2_or_x3_obdd);
 	obdd_print(eq1_obdd);

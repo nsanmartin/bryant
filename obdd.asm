@@ -31,7 +31,7 @@ extern is_true
 %define OBDD_NODE_HIGH_OBDD_OFFSET 12
 %define OBDD_NODE_LOW_OBDD_OFFSET 20
 %define OBDD_NODE_SIZE 28
-        
+       
 %define OBDD_NODE_VAR_ID(ptr) dword [ptr + OBDD_NODE_VAR_ID_OFFSET]
 %define OBDD_NODE_NODE_ID(ptr) dword [ptr + OBDD_NODE_NODE_ID_OFFSET]
 %define OBDD_NODE_REF_COUNT(ptr) dword [ptr +OBDD_NODE_REF_COUNT_OFFSET]
@@ -200,6 +200,7 @@ obdd_node_apply:
         mov rdi, MGR_VARS_DICT(r12)
         ;;xor rsi, rsi?
         mov esi, OBDD_NODE_VAR_ID(r14)
+        xor rax, rax            ; no se el tamaño de bool
         call dictionary_key_for_value
         mov LEFT_VAR, rax
 
@@ -207,6 +208,7 @@ obdd_node_apply:
         mov rdi, MGR_VARS_DICT(r12)
         ;;xor rsi, rsi?
         mov esi, OBDD_NODE_VAR_ID(r15)
+        xor rax, rax            ; no se el tamaño de bool
         call dictionary_key_for_value 
         mov RIGHT_VAR, rax
 
