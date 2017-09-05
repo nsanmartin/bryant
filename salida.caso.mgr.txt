@@ -1,0 +1,9 @@
+Test manager
+[OBDD MANAGER]
+Mgr: 3
+Mgr.Dict:
+[1]:0
+[0]:1
+[x1]:2
+[x2]:3
+[x3]:4

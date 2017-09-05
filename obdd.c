@@ -459,14 +459,108 @@ obdd* obdd_forall(obdd* root, char* var){
 }
 
 void obdd_print(obdd* root){
-	printf("[OBDD]\nMgr_ID:%d\nValue:", root->mgr->ID);
+	printf("[OBDD]\nMgr_ID:%d\nValue:\n", root->mgr->ID);
 	obdd_node_print(root->mgr, root->root_obdd, 0);
 	printf("\n");
 }
 
-void obdd_node_print(obdd_mgr* mgr, obdd_node* root, uint32_t spaces){
-  assert(false);
-	// TODO: implementar funcion
+void obdd_node_print0(obdd_mgr* mgr, obdd_node* root, uint32_t spaces) {
+        // TODO: implementar funcion
+        char * nombre = dictionary_key_for_value(mgr -> vars_dict,
+                                                 root -> var_ID);
+
+        if ( is_constant (mgr, root) ) {
+                printf ("%*s - > %s\n",spaces, "", nombre);
+                return;
+        }
+
+        obdd_node * h = root -> high_obdd;
+        obdd_node * l = root -> low_obdd;
+        char * pattern =  "%*s%s &\n";
+
+        printf (pattern, spaces, "",  nombre);
+
+        obdd_node_print (mgr, h, spaces + 4);
+        printf ("%*s|\n", spaces, "");
+        obdd_node_print (mgr, l, spaces + 4);        
+
+        /* if (is_constant (mgr, h)) { */
+        /*         char * nombre = dictionary_key_for_value(mgr -> vars_dict, */
+        /*                                                  h -> var_ID); */
+        /*         printf(high_pattern, spaces, "", */
+        /*                nombre, */
+        /*                is_true (mgr, h) ? " -> 1" : " -> 0"); */
+        /*         printf("nombre: %s", nombre); */
+        /* } else { */
+        /*         printf(high_pattern, spaces, "", */
+        /*                dictionary_key_for_value(mgr -> vars_dict, h -> var_ID), */
+        /*                " &"); */
+
+        /*         obdd_node_print (mgr, h, spaces + 4); */
+        /* } */
+        
+        /* printf("%*s|\n", spaces, ""); */
+        
+        /* printf("%*s%s &\n", spaces, "", */
+        /*        dictionary_key_for_value (mgr -> vars_dict, root -> var_ID)); */
+
+        /* obdd_node_print (mgr, root -> high_obdd, spaces + 5); */
+        /* printf("%*s|\n", spaces, ""); */
+        /* obdd_node_print (mgr, root -> low_obdd, spaces + 5); */
+        /* char * es_cte = is_constant(mgr, root -> high_obdd) ? "->" : "&\n"; */
+        /* printf("%*s%s%s", spaces, "", nombre, es_cte); */
+        // rama high
+        
+}
+
+
+void obdd_node_print0(obdd_mgr* mgr, obdd_node* root, uint32_t spaces) {
+        // TODO: implementar funcion
+        char * nombre = dictionary_key_for_value(mgr -> vars_dict,
+                                                 root -> var_ID);
+
+        if ( is_constant (mgr, root) ) {
+                printf ("%*s - > %s\n",spaces, "", nombre);
+                return;
+        }
+
+        obdd_node * h = root -> high_obdd;
+        obdd_node * l = root -> low_obdd;
+        char * pattern =  "%*s%s &\n";
+
+        printf (pattern, spaces, "",  nombre);
+
+        obdd_node_print (mgr, h, spaces + 4);
+        printf ("%*s|\n", spaces, "");
+        obdd_node_print (mgr, l, spaces + 4);        
+
+        /* if (is_constant (mgr, h)) { */
+        /*         char * nombre = dictionary_key_for_value(mgr -> vars_dict, */
+        /*                                                  h -> var_ID); */
+        /*         printf(high_pattern, spaces, "", */
+        /*                nombre, */
+        /*                is_true (mgr, h) ? " -> 1" : " -> 0"); */
+        /*         printf("nombre: %s", nombre); */
+        /* } else { */
+        /*         printf(high_pattern, spaces, "", */
+        /*                dictionary_key_for_value(mgr -> vars_dict, h -> var_ID), */
+        /*                " &"); */
+
+        /*         obdd_node_print (mgr, h, spaces + 4); */
+        /* } */
+        
+        /* printf("%*s|\n", spaces, ""); */
+        
+        /* printf("%*s%s &\n", spaces, "", */
+        /*        dictionary_key_for_value (mgr -> vars_dict, root -> var_ID)); */
+
+        /* obdd_node_print (mgr, root -> high_obdd, spaces + 5); */
+        /* printf("%*s|\n", spaces, ""); */
+        /* obdd_node_print (mgr, root -> low_obdd, spaces + 5); */
+        /* char * es_cte = is_constant(mgr, root -> high_obdd) ? "->" : "&\n"; */
+        /* printf("%*s%s%s", spaces, "", nombre, es_cte); */
+        // rama high
+        
 }
 
 bool is_true(obdd_mgr* mgr, obdd_node* root){
