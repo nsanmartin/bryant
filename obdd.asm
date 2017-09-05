@@ -125,6 +125,41 @@ obdd_mgr_mk_node:
 
 global obdd_node_destroy
 obdd_node_destroy:
+        push rbp
+        push rbx
+        push r12
+        mov rbp, rsp
+
+        mov rbx, rdi            ; rbx <- node
+        mov ecx, OBDD_NODE_REF_COUNT(rbx)
+        cmp ecx, 0
+        jne .return
+.high:
+        mov rdi, OBDD_NODE_HIGH(rbx)
+        cmp rdi, 0
+        je .low
+        dec OBDD_NODE_REF_COUNT(rdi)
+        call obdd_node_destroy
+        mov OBDD_NODE_HIGH(rbx), 0
+        
+.low:
+        mov rdi, OBDD_NODE_LOW(rbx)
+        cmp rdi, 0
+        je .free_node
+        dec OBDD_NODE_REF_COUNT(rdi)
+        call obdd_node_destroy
+        mov OBDD_NODE_LOW(rbx), 0
+        
+.free_node:
+        mov OBDD_NODE_VAR_ID(rbx), 0
+        mov OBDD_NODE_NODE_ID(rbx), 0
+        mov rdi, rbx
+        call free
+
+.return:
+        pop r12
+        pop rbx
+        pop rbp
         ret
 
 global obdd_create
