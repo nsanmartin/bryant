@@ -14,65 +14,65 @@ void casoObddChico();
 void casoObddGrande();
 
 int main() {
-        casoManager();
-	/* casoObddChico(); */
-	casoObddGrande();
+	casoManager();
+	casoObddChico();
+	/* casoObddGrande(); */
 
-	int err = open("cerr.log", O_RDWR|O_CREAT|O_APPEND, 0600);
-	if (-1 == err) { perror("opening cerr.log"); return 255; }
+	/* int err = open("cerr.log", O_RDWR|O_CREAT|O_APPEND, 0600); */
+	/* if (-1 == err) { perror("opening cerr.log"); return 255; } */
 
-	int save_out = dup(1);
-	int save_err = dup(2);
+	/* int save_out = dup(1); */
+	/* int save_err = dup(2); */
 
-	if (-1 == dup2(err, 2)) { perror("cannot redirect stderr"); return 255; }
+	/* if (-1 == dup2(err, 2)) { perror("cannot redirect stderr"); return 255; } */
 
 	
-	int pFile;
+	/* int pFile; */
 
-	remove(archivoCasoMgr);
-	pFile = open(archivoCasoMgr, O_RDWR|O_CREAT|O_APPEND, 0600);
-	if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; }
-	casoManager();
-	fflush(stdout);
-	close( pFile );
-	remove(archivoCasoObddChico);
-	pFile = open(archivoCasoObddChico, O_RDWR|O_CREAT|O_APPEND, 0600);
-	if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; }
-	casoObddChico();
-	fflush(stdout);
-	close( pFile );
-	remove(archivoCasoObddGrande);
-	pFile = open(archivoCasoObddGrande, O_RDWR|O_CREAT|O_APPEND, 0600);
-	if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; }
-	casoObddGrande();
-	fflush(stdout);
-	close( pFile );
+	/* remove(archivoCasoMgr); */
+	/* pFile = open(archivoCasoMgr, O_RDWR|O_CREAT|O_APPEND, 0600); */
+	/* if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; } */
+	/* casoManager(); */
+	/* fflush(stdout); */
+	/* close( pFile ); */
+	/* remove(archivoCasoObddChico); */
+	/* pFile = open(archivoCasoObddChico, O_RDWR|O_CREAT|O_APPEND, 0600); */
+	/* if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; } */
+	/* casoObddChico(); */
+	/* fflush(stdout); */
+	/* close( pFile ); */
+	/* remove(archivoCasoObddGrande); */
+	/* pFile = open(archivoCasoObddGrande, O_RDWR|O_CREAT|O_APPEND, 0600); */
+	/* if (-1 == dup2(pFile, 1)) { perror("cannot redirect stdout"); return 255; } */
+	/* casoObddGrande(); */
+	/* fflush(stdout); */
+	/* close( pFile ); */
 
-	fflush(stderr); close(err);
+	/* fflush(stderr); close(err); */
 
-	dup2(save_out, 1);
-	dup2(save_err, 2);
-	close(save_err);
+	/* dup2(save_out, 1); */
+	/* dup2(save_err, 2); */
+	/* close(save_err); */
 
 	return 0;
 }
 
 void casoManager() {
 	printf( "Test manager\n");
-	obdd_mgr* new_mgr	= obdd_mgr_create();
+	/* obdd_mgr* new_mgr	= obdd_mgr_create(); */
 
 
-	obdd* x1_obdd		= obdd_mgr_var(new_mgr, "x1");
-	obdd* x2_obdd		= obdd_mgr_var(new_mgr, "x2");
-	obdd* x3_obdd		= obdd_mgr_var(new_mgr, "x3");
-	obdd* x3_obdd_rep	= obdd_mgr_var(new_mgr, "x3");
-	obdd_mgr_print(new_mgr);
+	/* obdd* x1_obdd		= obdd_mgr_var(new_mgr, "x1"); */
+	/* obdd* x2_obdd		= obdd_mgr_var(new_mgr, "x2"); */
+	/* obdd* x3_obdd		= obdd_mgr_var(new_mgr, "x3"); */
+	/* obdd* x3_obdd_rep	= obdd_mgr_var(new_mgr, "x3"); */
+	/* obdd_mgr_print(new_mgr); */
 
-	obdd_destroy(x1_obdd);
-	obdd_destroy(x2_obdd);
-	obdd_destroy(x3_obdd);
-	obdd_destroy(x3_obdd_rep);
-	obdd_mgr_destroy(new_mgr);
+	/* obdd_destroy(x1_obdd); */
+	/* obdd_destroy(x2_obdd); */
+	/* obdd_destroy(x3_obdd); */
+	/* obdd_destroy(x3_obdd_rep); */
+	/* obdd_mgr_destroy(new_mgr); */
 }
 
 void casoObddChico() {
@@ -83,11 +83,11 @@ void casoObddChico() {
 	obdd* x1_obdd		= obdd_mgr_var(new_mgr, "x1");
 	obdd* x2_obdd		= obdd_mgr_var(new_mgr, "x2");
 	obdd* x3_obdd		= obdd_mgr_var(new_mgr, "x3");
-
+    	
 	obdd* x2_or_x3_obdd	= obdd_apply_or(x2_obdd, x3_obdd);
-
 	obdd* not_x2_or_x3_obdd	= obdd_apply_not(x2_or_x3_obdd);
 	obdd* eq1_obdd		= obdd_apply_and(x1_obdd, not_x2_or_x3_obdd);
+
 	obdd_print(eq1_obdd);
 
 	obdd* not_x2_obdd	= obdd_apply_not(x2_obdd);
@@ -100,7 +100,7 @@ void casoObddChico() {
 	obdd* eq1_eq_eq2_obdd	= obdd_apply_equals(eq1_obdd, eq2_obdd);
 	
 	obdd_print(eq1_eq_eq2_obdd);
-        
+
 	printf("eq1 == eq2 sat? : %s \n", is_sat(new_mgr, eq1_eq_eq2_obdd->root_obdd) ? "yes" : "no");
 	printf("eq1 == eq2 taut? : %s \n", is_tautology(new_mgr, eq1_eq_eq2_obdd->root_obdd) ? "yes" : "no");
 

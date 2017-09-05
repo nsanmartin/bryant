@@ -6,7 +6,7 @@ extern obdd_mgr_get_next_node_ID
 extern dictionary_key_for_value
 extern is_constant
 extern is_true
-
+extern obdd_mgr_destroy
 
 ;; OBDD MANAGER
 %define MGR_ID_OFFSET 0
@@ -78,6 +78,7 @@ obdd_mgr_mk_node:
         ; nuevo nodo
         mov rdi, OBDD_NODE_SIZE
         call malloc             ; rax <- &nuevo nodo
+
 .set_high:
         mov OBDD_NODE_HIGH(rax), r14
         cmp r14, 0
@@ -117,23 +118,24 @@ obdd_node_destroy:
 
         mov rbx, rdi            ; rbx <- node
         mov ecx, OBDD_NODE_REF_COUNT(rbx)
-        cmp ecx, 0
-        jne .return
+        jecxz .return
+        ; cmp ecx, 0
+        ;;jne .return
 .high:
         mov rdi, OBDD_NODE_HIGH(rbx)
         cmp rdi, 0
         je .low
         dec OBDD_NODE_REF_COUNT(rdi)
-        call obdd_node_destroy
         mov OBDD_NODE_HIGH(rbx), 0
+        call obdd_node_destroy
         
 .low:
         mov rdi, OBDD_NODE_LOW(rbx)
         cmp rdi, 0
         je .free_node
         dec OBDD_NODE_REF_COUNT(rdi)
-        call obdd_node_destroy
         mov OBDD_NODE_LOW(rbx), 0
+        call obdd_node_destroy
         
 .free_node:
         mov OBDD_NODE_VAR_ID(rbx), 0
@@ -179,12 +181,13 @@ obdd_destroy:
         cmp rbx, 0x0
         je .return
         mov rdi, rbx
+        mov OBDD_ROOT(r12), 0x0
         call obdd_node_destroy
-        mov qword OBDD_ROOT(r12), 0x0
+
 .return:
-        mov qword OBDD_MGR(r12), 0x0
+        mov OBDD_MGR(r12), 0x0
         mov rdi, r12
-        call free
+        call free   ; obdd_mgr_destroy
         
         pop r12
         pop rbx
