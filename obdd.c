@@ -361,11 +361,16 @@ void obdd_node_print(obdd_mgr* mgr, obdd_node* root, uint32_t spaces){
 
 bool is_true(obdd_mgr* mgr, obdd_node* root){
 	// TODO: implementar funcion
-	return false;
+        uint32_t true_id = mgr -> true_obdd -> root_obdd -> var_ID;
+        uint32_t id = root -> var_ID;
+        return id == true_id;
 }
 bool is_constant(obdd_mgr* mgr, obdd_node* root){
 	// TODO: implementar funcion
-	return false;
+        uint32_t true_id = mgr -> true_obdd -> root_obdd -> var_ID;
+        uint32_t false_id = mgr -> false_obdd -> root_obdd -> var_ID;
+        uint32_t id = root -> var_ID;
+        return id == true_id || id == false_id;
 }
 
 /** implementar en ASM
