@@ -213,6 +213,12 @@ global obdd_node_apply
 %define IS_RIGHT_CONST qword [rbp - 0x20]
 ;;%define NODES_ARE_TRUE [rsp + 0x20]
         
+;; obdd_node*
+;; obdd_node_apply(bool (*apply_fkt)(bool,bool), 
+;;                 obdd_mgr* mgr, 
+;;                 obdd_node* left_node,
+;;                 obdd_node* right_node)
+
 obdd_node_apply:
         push rbp
         push rbx

@@ -4,10 +4,11 @@
 uint32_t obdd_mgr_greatest_ID = 0;
 /** DICTIONARY FUNCTIONS **/
 struct dictionary_t* dictionary_create(){
-	struct dictionary_t* new_dict	= malloc(sizeof(struct dictionary_t));
-	new_dict->entries		= malloc(sizeof(dictionary_entry) * INITIAL_DICT_ENTRIES_SIZE);
-	new_dict->max_size		= INITIAL_DICT_ENTRIES_SIZE;
-	new_dict->size			= 0;
+	struct dictionary_t* new_dict = malloc(sizeof(struct dictionary_t));
+	new_dict->entries
+                = malloc(sizeof(dictionary_entry) * INITIAL_DICT_ENTRIES_SIZE);
+	new_dict->max_size = INITIAL_DICT_ENTRIES_SIZE;
+	new_dict->size = 0;
 	return new_dict;
 }
 
@@ -35,10 +36,9 @@ bool dictionary_has_key(struct dictionary_t* dict, char* key){
 
 
 void dictionary_duplicate (struct dictionary_t* dict) {
-        assert (!(0x80000000 & dict -> max_size)); // !overflow
         dict -> max_size <<= 1;
         struct dictionary_entry_t *entries;
-        entries = malloc (sizeof(struct dictionary_entry_t) * dict -> max_size);
+        entries = malloc (sizeof(struct dictionary_entry_t)*dict -> max_size);
         uint32_t i;
         for (i = 0; i < dict -> size; i++) {
                 entries[i] = dict -> entries[i];
@@ -130,7 +130,9 @@ void obdd_mgr_print(obdd_mgr* mgr){
 	uint32_t i;
 	struct dictionary_t* dict	= mgr->vars_dict;
 	for(i = 0; i < dict->size; i++){
-		printf("[%s]:%d\n", dict->entries[i].key, dict->entries[i].value);
+		printf("[%s]:%d\n",
+                       dict->entries[i].key,
+                       dict->entries[i].value);
 	}
 }
 
@@ -166,10 +168,10 @@ obdd* obdd_create(obdd_mgr* mgr, obdd_node* root);
 void obdd_destroy(obdd* root);
 **/
 
-bool obdd_apply_equals_fkt(bool left, bool right)	{ 	return left == right;	}
-bool obdd_apply_xor_fkt(bool left, bool right)	{	return left ^ right;	}
-bool obdd_apply_and_fkt(bool left, bool right)	{	return left && right;	}
-bool obdd_apply_or_fkt(bool left, bool right)	{	return left || right;	}
+bool obdd_apply_equals_fkt(bool left, bool right) { return left == right; }
+bool obdd_apply_xor_fkt(bool left, bool right) { return left ^ right; }
+bool obdd_apply_and_fkt(bool left, bool right) { return left && right; }
+bool obdd_apply_or_fkt(bool left, bool right) { return left || right; }
 
 obdd* obdd_apply_not(obdd* value){
 	return obdd_apply_xor(value->mgr->true_obdd, value);
@@ -191,7 +193,9 @@ obdd* obdd_apply_or(obdd* left, obdd* right){
 	return obdd_apply(&obdd_apply_or_fkt, left, right);
 }
 
-void obdd_remove_duplicated_terminals(obdd_mgr* mgr, obdd_node* root, obdd_node** true_node, obdd_node** false_node){
+void obdd_remove_duplicated_terminals(obdd_mgr* mgr, obdd_node* root,
+                                      obdd_node** true_node,
+                                      obdd_node** false_node) {
 	if(is_constant(mgr, root))
 		return;
 	if(is_constant(mgr, root->high_obdd)){
@@ -216,9 +220,11 @@ void obdd_remove_duplicated_terminals(obdd_mgr* mgr, obdd_node* root, obdd_node*
 				(*(false_node))->ref_count++;
 			}
 		}
-	}else{
-		obdd_remove_duplicated_terminals(mgr, root->high_obdd, true_node, false_node);
+	} else {
+		obdd_remove_duplicated_terminals(mgr, root->high_obdd,
+                                                 true_node, false_node);
 	}
+
 	if(is_constant(mgr, root->low_obdd)){
 		if(is_true(mgr, root->low_obdd)){
 			if(*true_node == NULL){
@@ -230,10 +236,10 @@ void obdd_remove_duplicated_terminals(obdd_mgr* mgr, obdd_node* root, obdd_node*
 				root->low_obdd = *(true_node);
 				(*(true_node))->ref_count++;
 			}
-		}else{
+		} else {
 			if(*false_node == NULL){
 				*false_node	= root->low_obdd;
-			}else{
+			} else {
 				if(root->low_obdd != NULL)
 					root->low_obdd->ref_count--;
 				obdd_node_destroy(root->low_obdd);
@@ -241,10 +247,10 @@ void obdd_remove_duplicated_terminals(obdd_mgr* mgr, obdd_node* root, obdd_node*
 				(*(false_node))->ref_count++;
 			}
 		}
-	}else{
-		obdd_remove_duplicated_terminals(mgr, root->low_obdd, true_node, false_node);
+	} else {
+		obdd_remove_duplicated_terminals(mgr, root->low_obdd,
+                                                 true_node, false_node);
 	}
-
 }
 
 void obdd_merge_redundant_nodes(obdd_mgr* mgr, obdd_node* root){
@@ -275,7 +281,9 @@ void obdd_merge_redundant_nodes(obdd_mgr* mgr, obdd_node* root){
 void obdd_reduce(obdd* root){
 	obdd_node* true_node	= NULL;
 	obdd_node* false_node	= NULL;
-	obdd_remove_duplicated_terminals(root->mgr, root->root_obdd, &true_node, &false_node);
+	obdd_remove_duplicated_terminals(root->mgr,
+                                         root->root_obdd,
+                                         &true_node, &false_node);
 	obdd_merge_redundant_nodes(root->mgr, root->root_obdd);
 }
 
@@ -283,7 +291,11 @@ obdd* obdd_apply(bool (*apply_fkt)(bool,bool), obdd *left, obdd* right){
 	if(left->mgr != right->mgr)
 		return NULL;
 	
-	obdd* applied_obdd	= obdd_create(left->mgr, obdd_node_apply(apply_fkt, left->mgr, left->root_obdd, right->root_obdd));
+	obdd* applied_obdd = obdd_create(left->mgr,
+                                         obdd_node_apply(apply_fkt,
+                                                         left->mgr,
+                                                         left->root_obdd,
+                                                         right->root_obdd));
 	obdd_reduce(applied_obdd);
 	return applied_obdd;
 }	
@@ -297,16 +309,19 @@ obdd_node_apply(bool (*apply_fkt)(bool,bool),
 **/
 
 obdd* obdd_restrict(obdd* root, char* var, bool value){
-	uint32_t var_ID	=  dictionary_value_for_key(root->mgr->vars_dict, var);
-	obdd_node* restricted_node	= obdd_node_restrict(root->mgr, root->root_obdd, var, var_ID, value);
+	uint32_t var_ID	= dictionary_value_for_key(root->mgr->vars_dict, var);
+	obdd_node* restricted_node = obdd_node_restrict(root->mgr,
+                                                        root->root_obdd,
+                                                        var, var_ID, value);
 
 	return (obdd_create(root->mgr, restricted_node));
 }
 
-obdd_node* obdd_node_restrict(obdd_mgr* mgr, obdd_node* root, char* var, uint32_t var_ID, bool value){
+obdd_node* obdd_node_restrict(obdd_mgr* mgr, obdd_node* root,
+                              char* var, uint32_t var_ID, bool value){
 	bool is_root_constant	= is_constant(mgr, root);
 	uint32_t root_var_ID	= root->var_ID;
-	char* root_var		= dictionary_key_for_value(mgr->vars_dict,root_var_ID);
+	char* root_var = dictionary_key_for_value(mgr->vars_dict,root_var_ID);
 
 	if(is_root_constant){
 		return root;
@@ -315,8 +330,8 @@ obdd_node* obdd_node_restrict(obdd_mgr* mgr, obdd_node* root, char* var, uint32_
 	uint32_t low_var_ID	=  root->low_obdd->var_ID;
 	uint32_t high_var_ID	=  root->high_obdd->var_ID;
 
-	char* low_var			= dictionary_key_for_value(mgr->vars_dict,low_var_ID);
-	char* high_var			= dictionary_key_for_value(mgr->vars_dict,high_var_ID);
+	char* low_var = dictionary_key_for_value(mgr->vars_dict,low_var_ID);
+	char* high_var = dictionary_key_for_value(mgr->vars_dict,high_var_ID);
 
 	bool is_low_constant		= is_constant(mgr, root->low_obdd);
 	bool is_high_constant		= is_constant(mgr, root->high_obdd);
@@ -325,16 +340,27 @@ obdd_node* obdd_node_restrict(obdd_mgr* mgr, obdd_node* root, char* var, uint32_
 
 	if(root_var_ID == var_ID){
 		if(value){
-			applied_node 	= obdd_mgr_mk_node(mgr, high_var
-				, root->high_obdd->high_obdd, root->high_obdd->low_obdd); 
-		}else{
-			applied_node 	= obdd_mgr_mk_node(mgr, low_var
-				, root->low_obdd->high_obdd, root->low_obdd->low_obdd);  
+			applied_node
+                                = obdd_mgr_mk_node(mgr, high_var,
+                                                   root->high_obdd->high_obdd,
+                                                   root->high_obdd->low_obdd); 
+		} else {
+			applied_node
+                                = obdd_mgr_mk_node(mgr, low_var,
+                                                   root->low_obdd->high_obdd,
+                                                   root->low_obdd->low_obdd);  
 		}
-	}else{
-		applied_node 	= obdd_mgr_mk_node(mgr, root_var
-			, obdd_node_restrict(mgr, root->high_obdd, var, var_ID, value)
-			, obdd_node_restrict(mgr, root->low_obdd, var, var_ID, value));  	
+	} else {
+		applied_node
+                        = obdd_mgr_mk_node(mgr, root_var,
+                                           obdd_node_restrict(mgr,
+                                                              root->high_obdd,
+                                                              var, var_ID,
+                                                              value),
+                                           obdd_node_restrict(mgr,
+                                                              root->low_obdd,
+                                                              var, var_ID,
+                                                              value));
 	}
 	return applied_node;	
 }
