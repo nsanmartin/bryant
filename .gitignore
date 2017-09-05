@@ -7,4 +7,6 @@ aux
 *#*
 *.exe
 tester
-
+*.txt
+*tmp*
+tester2

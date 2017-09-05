@@ -59,24 +59,18 @@ FALSE_VAR: DB '0',0
 
 obdd_mgr_mk_node:
         push rbp
-        mov rbp, rbp            
+        mov rbp, rsp            
         push rbx
         push r12
         push r14
         push r15                ; pila alineada
 
-        mov rbx, rdi
-        mov r12, rsi
-        mov r14, rdx
-        mov r15, rcx
-        ; tenemos:
-        ; rbx <- &mgr
-        ; r12 <- var
-        ; r14 <- &high
-        ; r15 <- &low
-
-        ; nuevo nodo
-        mov rdi, OBDD_NODE_SIZE
+        mov rbx, rdi		; rbx <- mgr
+        mov r12, rsi		; r12 <- var
+        mov r14, rdx		; r14 <- high
+        mov r15, rcx		; r15 <- low
+        
+        mov rdi, OBDD_NODE_SIZE 
         call malloc             ; rax <- &nuevo nodo
 
 .set_high:
@@ -99,6 +93,8 @@ obdd_mgr_mk_node:
         mov rdi, rbx            ;1er param es mgr
         call obdd_mgr_get_next_node_ID
         mov OBDD_NODE_NODE_ID(r14), eax
+.set_ref_count:
+	mov OBDD_NODE_REF_COUNT(r14), 0
 .return:
         mov rax, r14
         pop r15
@@ -118,9 +114,8 @@ obdd_node_destroy:
 
         mov rbx, rdi            ; rbx <- node
         mov ecx, OBDD_NODE_REF_COUNT(rbx)
-        jecxz .return
-        ; cmp ecx, 0
-        ;;jne .return
+        cmp ecx, 0
+        jne .return
 .high:
         mov rdi, OBDD_NODE_HIGH(rbx)
         cmp rdi, 0
@@ -180,8 +175,8 @@ obdd_destroy:
         mov rbx, OBDD_ROOT(rdi) ; rbx <- root -> root_obdd
         cmp rbx, 0x0
         je .return
-        mov rdi, rbx
         mov OBDD_ROOT(r12), 0x0
+        mov rdi, rbx
         call obdd_node_destroy
 
 .return:
@@ -195,237 +190,237 @@ obdd_destroy:
         ret
 
 
-global obdd_node_apply
-%define LEFT_VAR qword [rbp- 0x8]
-%define RIGHT_VAR qword [rbp - 0x10]
-%define IS_LEFT_CONST qword [rbp - 0x18]
-%define IS_RIGHT_CONST qword [rbp - 0x20]
+; global obdd_node_apply
+; %define LEFT_VAR qword [rbp- 0x8]
+; %define RIGHT_VAR qword [rbp - 0x10]
+; %define IS_LEFT_CONST qword [rbp - 0x18]
+; %define IS_RIGHT_CONST qword [rbp - 0x20]
                 
-obdd_node_apply:
-        push rbp
-        push rbx
-        push r12
-        push r13
-        push r14
-        push r15
+; obdd_node_apply:
+;         push rbp
+;         push rbx
+;         push r12
+;         push r13
+;         push r14
+;         push r15
 
-        mov rbp, rsp
-;; reservo para variables locales
-        sub rsp, 0x28           ; 0x20 == sizeof(void*) * 4
+;         mov rbp, rsp
+; ;; reservo para variables locales
+;         sub rsp, 0x28           ; 0x20 == sizeof(void*) * 4
         
-        mov rbx, rdi            ; rbx <- apply_fkt
-        mov r12, rsi            ; r12 <- mgr
-        mov r14, rdx            ; r14 <- left_node
-        mov r15, rcx            ; r15 <- right_node
+;         mov rbx, rdi            ; rbx <- apply_fkt
+;         mov r12, rsi            ; r12 <- mgr
+;         mov r14, rdx            ; r14 <- left_node
+;         mov r15, rcx            ; r15 <- right_node
 
-        ; debbug
-        mov LEFT_VAR, 0
-        mov RIGHT_VAR,0
-        mov IS_LEFT_CONST,0
-        mov IS_RIGHT_CONST,0
+;         ; debbug
+;         mov LEFT_VAR, 0
+;         mov RIGHT_VAR,0
+;         mov IS_LEFT_CONST,0
+;         mov IS_RIGHT_CONST,0
         
-        ; LEFT_VAR
-        ;    <- dictionary_key_for_value(mgr->vars_dict,left_var_ID);
-        mov rdi, MGR_VARS_DICT(r12)
-        ;;xor rsi, rsi?
-        mov esi, OBDD_NODE_VAR_ID(r14)
-        xor rax, rax            ; no se el tamaño de bool
-        call dictionary_key_for_value
-        mov LEFT_VAR, rax
+;         ; LEFT_VAR
+;         ;    <- dictionary_key_for_value(mgr->vars_dict,left_var_ID);
+;         mov rdi, MGR_VARS_DICT(r12)
+;         ;;xor rsi, rsi?
+;         mov esi, OBDD_NODE_VAR_ID(r14)
+;         xor rax, rax            ; no se el tamaño de bool
+;         call dictionary_key_for_value
+;         mov LEFT_VAR, rax
 
-        ; RIGHT_VAR
-        ;    <- dictionary_key_for_value(mgr->vars_dict,right_var_ID);
-        mov rdi, MGR_VARS_DICT(r12)
-        ;;xor rsi, rsi?
-        mov esi, OBDD_NODE_VAR_ID(r15)
-        xor rax, rax            ; no se el tamaño de bool
-        call dictionary_key_for_value 
-        mov RIGHT_VAR, rax
+;         ; RIGHT_VAR
+;         ;    <- dictionary_key_for_value(mgr->vars_dict,right_var_ID);
+;         mov rdi, MGR_VARS_DICT(r12)
+;         ;;xor rsi, rsi?
+;         mov esi, OBDD_NODE_VAR_ID(r15)
+;         xor rax, rax            ; no se el tamaño de bool
+;         call dictionary_key_for_value 
+;         mov RIGHT_VAR, rax
 
-        mov rdi, r12
-        mov rsi, r14
-        xor rax, rax
-        call is_constant
-        mov IS_LEFT_CONST, rax
-        cmp rax, 0
-        je .l_and_r_const_false
-        ; is_left_constant == true
+;         mov rdi, r12
+;         mov rsi, r14
+;         xor rax, rax
+;         call is_constant
+;         mov IS_LEFT_CONST, rax
+;         cmp rax, 0
+;         je .l_and_r_const_false
+;         ; is_left_constant == true
 
-        mov rdi, r12
-        mov rsi, r15
-        xor rax, rax
-        call is_constant
-        mov IS_RIGHT_CONST, rax        
-        cmp rax, 0
-        je .l_and_r_const_false
-        ; vale:
-        ; is_right_constant && is_right_constant
+;         mov rdi, r12
+;         mov rsi, r15
+;         xor rax, rax
+;         call is_constant
+;         mov IS_RIGHT_CONST, rax        
+;         cmp rax, 0
+;         je .l_and_r_const_false
+;         ; vale:
+;         ; is_right_constant && is_right_constant
 
-        mov rdi, r12
-        mov rsi, r14
-        call is_true
-        mov r13, rax            ; r13 <- is_true(left)
+;         mov rdi, r12
+;         mov rsi, r14
+;         call is_true
+;         mov r13, rax            ; r13 <- is_true(left)
         
-        mov rdi, r12
-        mov rsi, r15
-        call is_true            ; rax <- is_true(right)
+;         mov rdi, r12
+;         mov rsi, r15
+;         call is_true            ; rax <- is_true(right)
 
-        mov rdi, r13
-        mov rsi, rax
-        call rbx
+;         mov rdi, r13
+;         mov rsi, rax
+;         call rbx
 
-        cmp rax, 0
-        jne .ret_mk_node_true
-        jmp .ret_mk_node_false
+;         cmp rax, 0
+;         jne .ret_mk_node_true
+;         jmp .ret_mk_node_false
 
 
-.l_and_r_const_false:
-        cmp IS_LEFT_CONST,0
-        jne .is_left_constant
-        cmp IS_RIGHT_CONST,0
-        jne .is_right_constant
-        mov r13d, OBDD_NODE_VAR_ID(r14) ; r13 <- left_var_ID
-        cmp r13d, OBDD_NODE_VAR_ID(r15) ; 
-        je .l_var_eq_r_var
-        jl .l_var_less_than_r_var
-        jmp .l_var_gter_than_r_var
+; .l_and_r_const_false:
+;         cmp IS_LEFT_CONST,0
+;         jne .is_left_constant
+;         cmp IS_RIGHT_CONST,0
+;         jne .is_right_constant
+;         mov r13d, OBDD_NODE_VAR_ID(r14) ; r13 <- left_var_ID
+;         cmp r13d, OBDD_NODE_VAR_ID(r15) ; 
+;         je .l_var_eq_r_var
+;         jl .l_var_less_than_r_var
+;         jmp .l_var_gter_than_r_var
 
         
-.is_left_constant:
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, r14            ; left_node
-        mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high_obdd 
-        call obdd_node_apply
-        mov r13, rax
+; .is_left_constant:
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, r14            ; left_node
+;         mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high_obdd 
+;         call obdd_node_apply
+;         mov r13, rax
 
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, r14            ; left_node
-        mov rcx, OBDD_NODE_LOW(r15) ;  right_node -> low_obdd 
-        call obdd_node_apply
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, r14            ; left_node
+;         mov rcx, OBDD_NODE_LOW(r15) ;  right_node -> low_obdd 
+;         call obdd_node_apply
 
-        mov rdi, r12            ; mgr
-        mov rsi, RIGHT_VAR      
-        mov rdx, r13            
-        mov rcx, rax
-        call obdd_mgr_mk_node
-        jmp .return
+;         mov rdi, r12            ; mgr
+;         mov rsi, RIGHT_VAR      
+;         mov rdx, r13            
+;         mov rcx, rax
+;         call obdd_mgr_mk_node
+;         jmp .return
 
-.is_right_constant:
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
-        mov rcx, r15            ; right_node
-        call obdd_node_apply
-        mov r13, rax
+; .is_right_constant:
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
+;         mov rcx, r15            ; right_node
+;         call obdd_node_apply
+;         mov r13, rax
 
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
-        mov rcx, r15 ;  right_node
-        call obdd_node_apply
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
+;         mov rcx, r15 ;  right_node
+;         call obdd_node_apply
 
-        mov rdi, r12            ; mgr
-        mov rsi, LEFT_VAR      
-        mov rdx, r13            
-        mov rcx, rax
-        call obdd_mgr_mk_node
-        jmp .return
+;         mov rdi, r12            ; mgr
+;         mov rsi, LEFT_VAR      
+;         mov rdx, r13            
+;         mov rcx, rax
+;         call obdd_mgr_mk_node
+;         jmp .return
         
-.l_var_eq_r_var:
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
-        mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high
-        call obdd_node_apply
-        mov r13, rax
+; .l_var_eq_r_var:
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
+;         mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high
+;         call obdd_node_apply
+;         mov r13, rax
 
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
-        mov rcx, OBDD_NODE_LOW(r15) ; right_node -> low
-        call obdd_node_apply
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
+;         mov rcx, OBDD_NODE_LOW(r15) ; right_node -> low
+;         call obdd_node_apply
 
-        mov rdi, r12            ; mgr
-        mov rsi, LEFT_VAR      
-        mov rdx, r13            
-        mov rcx, rax
-        call obdd_mgr_mk_node
-        jmp .return
+;         mov rdi, r12            ; mgr
+;         mov rsi, LEFT_VAR      
+;         mov rdx, r13            
+;         mov rcx, rax
+;         call obdd_mgr_mk_node
+;         jmp .return
 
-.l_var_less_than_r_var:
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
-        mov rcx, r15 ; right_node
-        call obdd_node_apply
-        mov r13, rax
+; .l_var_less_than_r_var:
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_HIGH(r14) ; left_node -> high
+;         mov rcx, r15 ; right_node
+;         call obdd_node_apply
+;         mov r13, rax
 
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
-        mov rcx, r15 ; right_node
-        call obdd_node_apply
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, OBDD_NODE_LOW(r14) ; left_node -> low
+;         mov rcx, r15 ; right_node
+;         call obdd_node_apply
 
-        mov rdi, r12            ; mgr
-        mov rsi, LEFT_VAR      
-        mov rdx, r13            
-        mov rcx, rax
-        call obdd_mgr_mk_node
-        jmp .return
+;         mov rdi, r12            ; mgr
+;         mov rsi, LEFT_VAR      
+;         mov rdx, r13            
+;         mov rcx, rax
+;         call obdd_mgr_mk_node
+;         jmp .return
 
-.l_var_gter_than_r_var:         ; else
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, r14 ; left_node
-        mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high
-        call obdd_node_apply
-        mov r13, rax
+; .l_var_gter_than_r_var:         ; else
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, r14 ; left_node
+;         mov rcx, OBDD_NODE_HIGH(r15) ; right_node -> high
+;         call obdd_node_apply
+;         mov r13, rax
 
-        mov rdi, rbx            ; fkt
-        mov rsi, r12            ; mgr
-        mov rdx, r14 ; left_node
-        mov rcx, OBDD_NODE_LOW(r15) ; right_node -> low
-        call obdd_node_apply
+;         mov rdi, rbx            ; fkt
+;         mov rsi, r12            ; mgr
+;         mov rdx, r14 ; left_node
+;         mov rcx, OBDD_NODE_LOW(r15) ; right_node -> low
+;         call obdd_node_apply
 
-        mov rdi, r12            ; mgr
-        mov rsi, RIGHT_VAR      
-        mov rdx, r13            
-        mov rcx, rax
-        call obdd_mgr_mk_node
-        jmp .return
+;         mov rdi, r12            ; mgr
+;         mov rsi, RIGHT_VAR      
+;         mov rdx, r13            
+;         mov rcx, rax
+;         call obdd_mgr_mk_node
+;         jmp .return
 
-.ret_mk_node_true:
-        mov rdi, r12
-        mov rsi, TRUE_VAR
-        mov rdx, 0x0
-        mov rcx, 0x0
-        call obdd_mgr_mk_node
-        jmp .return
+; .ret_mk_node_true:
+;         mov rdi, r12
+;         mov rsi, TRUE_VAR
+;         mov rdx, 0x0
+;         mov rcx, 0x0
+;         call obdd_mgr_mk_node
+;         jmp .return
 
-.ret_mk_node_false:
-        mov rdi, r12
-        mov rsi, FALSE_VAR
-        mov rdx, 0x0
-        mov rcx, 0x0
-        call obdd_mgr_mk_node
-        jmp .return
+; .ret_mk_node_false:
+;         mov rdi, r12
+;         mov rsi, FALSE_VAR
+;         mov rdx, 0x0
+;         mov rcx, 0x0
+;         call obdd_mgr_mk_node
+;         jmp .return
         
-.return:
-        add rsp, 0x28
-        pop r15
-        pop r14
-        pop r13
-        pop r12
-        pop rbx
-        pop rbp
-        ret
+; .return:
+;         add rsp, 0x28
+;         pop r15
+;         pop r14
+;         pop r13
+;         pop r12
+;         pop rbx
+;         pop rbp
+;         ret
 
-%undef LEFT_VAR
-%undef RIGHT_VAR
-%undef IS_LEFT_CONST
-%undef IS_RIGHT_CONST
+; %undef LEFT_VAR
+; %undef RIGHT_VAR
+; %undef IS_LEFT_CONST
+; %undef IS_RIGHT_CONST
 
         
 global is_tautology
@@ -452,7 +447,7 @@ str_len:
 ;; char* str_copy(char* a) ;
 global str_copy
 str_copy:
-                push rbp                
+        push rbp                
         mov rbp, rsp
         push rbx
         push r12                ; pila alineada a 16
