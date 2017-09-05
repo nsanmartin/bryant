@@ -1,9 +1,10 @@
-obdd-bkp.c
 main
-tester
 *.o
 TAGS
 *.zip
 aux
 *~
 *#*
+tester.exe
+tester
+

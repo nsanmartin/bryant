@@ -5,17 +5,17 @@ NASMFLAGS=-f elf64 -g -F DWARF
 
 all: main tester tester2
 
-main: main.c obdd_c.o #obdd_asm.o
+main: main.c obdd_c.o obdd_asm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-tester: tester.c obdd_c.o #obdd_asm.o
+tester: tester.c obdd_c.o obdd_asm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-tester2: tester2.c # obdd_c.o obdd_asm.o
+tester2: tester2.c  obdd_c.o obdd_asm.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-# obdd_asm.o: obdd.asm
-# 	$(NASM) $(NASMFLAGS) $< -o $@
+obdd_asm.o: obdd.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 obdd_c.o: obdd.c
 	$(CC) $(CFLAGS) -c $< -o $@

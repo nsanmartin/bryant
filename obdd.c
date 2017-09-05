@@ -146,20 +146,20 @@ uint32_t obdd_mgr_get_next_node_ID(obdd_mgr* mgr){
 /* implementar en ASM */
 /* obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, */
 /*                             obdd_node* high, obdd_node* low); */
-obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node* low){
-	uint32_t var_ID		= dictionary_add_entry(mgr->vars_dict, var);
-	obdd_node* new_node	= malloc(sizeof(obdd_node));
-	new_node->var_ID	= var_ID;
-	new_node->node_ID	= obdd_mgr_get_next_node_ID(mgr);
-	new_node->high_obdd	= high;
-	if(high != NULL)
-		high->ref_count++;
-	new_node->low_obdd	= low;
-	if(low != NULL)
-		low->ref_count++;
-	new_node->ref_count	= 0;
-	return new_node;
-}
+/* obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node* low){ */
+/* 	uint32_t var_ID		= dictionary_add_entry(mgr->vars_dict, var); */
+/* 	obdd_node* new_node	= malloc(sizeof(obdd_node)); */
+/* 	new_node->var_ID	= var_ID; */
+/* 	new_node->node_ID	= obdd_mgr_get_next_node_ID(mgr); */
+/* 	new_node->high_obdd	= high; */
+/* 	if(high != NULL) */
+/* 		high->ref_count++; */
+/* 	new_node->low_obdd	= low; */
+/* 	if(low != NULL) */
+/* 		low->ref_count++; */
+/* 	new_node->ref_count	= 0; */
+/* 	return new_node; */
+/* } */
 
 obdd*	obdd_mgr_var(obdd_mgr* mgr, char* name){
 	obdd* var_obdd	= malloc(sizeof(obdd));
@@ -178,24 +178,24 @@ obdd*	obdd_mgr_false(obdd_mgr* mgr){ return mgr->false_obdd; }
 /** implementar en ASM
 obdd* obdd_create(obdd_mgr* mgr, obdd_node* root);
 **/
-obdd* obdd_create(obdd_mgr* mgr, obdd_node* root){
-	obdd* new_obdd		= malloc(sizeof(obdd));
-	new_obdd->mgr		= mgr;
-	new_obdd->root_obdd	= root;
-	return new_obdd;
-}
+/* obdd* obdd_create(obdd_mgr* mgr, obdd_node* root){ */
+/* 	obdd* new_obdd		= malloc(sizeof(obdd)); */
+/* 	new_obdd->mgr		= mgr; */
+/* 	new_obdd->root_obdd	= root; */
+/* 	return new_obdd; */
+/* } */
 
 /** implementar en ASM
 void obdd_destroy(obdd* root);
 **/
-void obdd_destroy(obdd* root){
-	if(root->root_obdd != NULL){
-		obdd_node_destroy(root->root_obdd);
-		root->root_obdd		= NULL;
-	}
-	root->mgr			= NULL;
-	free(root);
-}
+/* void obdd_destroy(obdd* root){ */
+/* 	if(root->root_obdd != NULL){ */
+/* 		obdd_node_destroy(root->root_obdd); */
+/* 		root->root_obdd		= NULL; */
+/* 	} */
+/* 	root->mgr			= NULL; */
+/* 	free(root); */
+/* } */
 
 bool obdd_apply_equals_fkt(bool left, bool right) { return left == right; }
 bool obdd_apply_xor_fkt(bool left, bool right) { return left ^ right; }
@@ -336,51 +336,51 @@ obdd_node_apply(bool (*apply_fkt)(bool,bool),
                       obdd_node* left_node,
                        obdd_node* right_node)
 **/
-obdd_node* obdd_node_apply(bool (*apply_fkt)(bool,bool), obdd_mgr* mgr, obdd_node* left_node, obdd_node* right_node){
+/* obdd_node* obdd_node_apply(bool (*apply_fkt)(bool,bool), obdd_mgr* mgr, obdd_node* left_node, obdd_node* right_node){ */
 
-	uint32_t left_var_ID	=  left_node->var_ID;
-	uint32_t right_var_ID	=  right_node->var_ID;
+/* 	uint32_t left_var_ID	=  left_node->var_ID; */
+/* 	uint32_t right_var_ID	=  right_node->var_ID; */
 
-	char* left_var			= dictionary_key_for_value(mgr->vars_dict,left_var_ID);
-	char* right_var			= dictionary_key_for_value(mgr->vars_dict,right_var_ID);
+/* 	char* left_var			= dictionary_key_for_value(mgr->vars_dict,left_var_ID); */
+/* 	char* right_var			= dictionary_key_for_value(mgr->vars_dict,right_var_ID); */
 
-	bool is_left_constant		= is_constant(mgr, left_node);
-	bool is_right_constant		= is_constant(mgr, right_node);
+/* 	bool is_left_constant		= is_constant(mgr, left_node); */
+/* 	bool is_right_constant		= is_constant(mgr, right_node); */
 
-	if(is_left_constant && is_right_constant){
-		if((*apply_fkt)(is_true(mgr, left_node), is_true(mgr, right_node))){
-			return obdd_mgr_mk_node(mgr, TRUE_VAR, NULL, NULL);
-		}else{
-			return obdd_mgr_mk_node(mgr, FALSE_VAR, NULL, NULL);
-		}
-	}
+/* 	if(is_left_constant && is_right_constant){ */
+/* 		if((*apply_fkt)(is_true(mgr, left_node), is_true(mgr, right_node))){ */
+/* 			return obdd_mgr_mk_node(mgr, TRUE_VAR, NULL, NULL); */
+/* 		}else{ */
+/* 			return obdd_mgr_mk_node(mgr, FALSE_VAR, NULL, NULL); */
+/* 		} */
+/* 	} */
 
-	obdd_node* applied_node;
+/* 	obdd_node* applied_node; */
 
-	if(is_left_constant){
-		applied_node 	= obdd_mgr_mk_node(mgr, right_var, 
-			obdd_node_apply(apply_fkt, mgr, left_node, right_node->high_obdd), 
-			obdd_node_apply(apply_fkt, mgr, left_node, right_node->low_obdd));
-	}else if(is_right_constant){
-		applied_node 	= obdd_mgr_mk_node(mgr, left_var, 
-			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node), 
-			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node));
-	}else if(left_var_ID == right_var_ID){
-		applied_node 	= obdd_mgr_mk_node(mgr, left_var, 
-			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node->high_obdd), 
-			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node->low_obdd));
-	}else if(left_var_ID < right_var_ID){
-		applied_node 	= obdd_mgr_mk_node(mgr, left_var, 
-			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node), 
-			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node));
-	}else{
-		applied_node 	= obdd_mgr_mk_node(mgr, right_var, 
-			obdd_node_apply(apply_fkt, mgr, left_node, right_node->high_obdd), 
-			obdd_node_apply(apply_fkt, mgr, left_node, right_node->low_obdd));
-	}
+/* 	if(is_left_constant){ */
+/* 		applied_node 	= obdd_mgr_mk_node(mgr, right_var,  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node, right_node->high_obdd),  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node, right_node->low_obdd)); */
+/* 	}else if(is_right_constant){ */
+/* 		applied_node 	= obdd_mgr_mk_node(mgr, left_var,  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node),  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node)); */
+/* 	}else if(left_var_ID == right_var_ID){ */
+/* 		applied_node 	= obdd_mgr_mk_node(mgr, left_var,  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node->high_obdd),  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node->low_obdd)); */
+/* 	}else if(left_var_ID < right_var_ID){ */
+/* 		applied_node 	= obdd_mgr_mk_node(mgr, left_var,  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->high_obdd, right_node),  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node->low_obdd, right_node)); */
+/* 	}else{ */
+/* 		applied_node 	= obdd_mgr_mk_node(mgr, right_var,  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node, right_node->high_obdd),  */
+/* 			obdd_node_apply(apply_fkt, mgr, left_node, right_node->low_obdd)); */
+/* 	} */
 
-	return applied_node;
-}
+/* 	return applied_node; */
+/* } */
 
 	  
 obdd* obdd_restrict(obdd* root, char* var, bool value){
@@ -474,62 +474,62 @@ bool is_constant(obdd_mgr* mgr, obdd_node* root){
         return id == true_id || id == false_id;
 }
 
-//implementar en ASM
-bool is_tautology(obdd_mgr* mgr, obdd_node* root){
-	if(is_constant(mgr, root)){
-		return is_true(mgr, root);
-	}else{
-		return is_tautology(mgr, root->high_obdd) && is_tautology(mgr, root->low_obdd);	
-	}
-}
+/* //implementar en ASM */
+/* bool is_tautology(obdd_mgr* mgr, obdd_node* root){ */
+/* 	if(is_constant(mgr, root)){ */
+/* 		return is_true(mgr, root); */
+/* 	}else{ */
+/* 		return is_tautology(mgr, root->high_obdd) && is_tautology(mgr, root->low_obdd);	 */
+/* 	} */
+/* } */
 
-//implementar en ASM
-bool is_sat(obdd_mgr* mgr, obdd_node* root){
-	if(is_constant(mgr, root)){
-		return is_true(mgr, root);
-	}else{
-		return is_sat(mgr, root->high_obdd) || is_sat(mgr, root->high_obdd);	
-	}
-}
+/* //implementar en ASM */
+/* bool is_sat(obdd_mgr* mgr, obdd_node* root){ */
+/* 	if(is_constant(mgr, root)){ */
+/* 		return is_true(mgr, root); */
+/* 	}else{ */
+/* 		return is_sat(mgr, root->high_obdd) || is_sat(mgr, root->high_obdd);	 */
+/* 	} */
+/* } */
 
 /** OBDD NODE FUNCTIONS **/
 
-//implementar en ASM
-void obdd_node_destroy(obdd_node* node){
-	if(node->ref_count == 0){
-		if(node->high_obdd != NULL){
-			obdd_node* to_remove = node->high_obdd;
-			node->high_obdd	= NULL;
-			to_remove->ref_count--;
-			obdd_node_destroy(to_remove);
-		}
-		if(node->low_obdd != NULL){
-			obdd_node* to_remove = node->low_obdd;
-			node->low_obdd	= NULL;
-			to_remove->ref_count--;
-			obdd_node_destroy(to_remove);
-		}
-		node->var_ID	= 0;
-		node->node_ID	= 0;
-		free(node);
-	}
-}
+/* //implementar en ASM */
+/* void obdd_node_destroy(obdd_node* node){ */
+/* 	if(node->ref_count == 0){ */
+/* 		if(node->high_obdd != NULL){ */
+/* 			obdd_node* to_remove = node->high_obdd; */
+/* 			node->high_obdd	= NULL; */
+/* 			to_remove->ref_count--; */
+/* 			obdd_node_destroy(to_remove); */
+/* 		} */
+/* 		if(node->low_obdd != NULL){ */
+/* 			obdd_node* to_remove = node->low_obdd; */
+/* 			node->low_obdd	= NULL; */
+/* 			to_remove->ref_count--; */
+/* 			obdd_node_destroy(to_remove); */
+/* 		} */
+/* 		node->var_ID	= 0; */
+/* 		node->node_ID	= 0; */
+/* 		free(node); */
+/* 	} */
+/* } */
 
 /** AUX FUNCTIONS **/
 
-//implementar en ASM
-uint32_t str_len(char* a) {
-	return strlen(a);
-}
+/* //implementar en ASM */
+/* uint32_t str_len(char* a) { */
+/* 	return strlen(a); */
+/* } */
 
-//implementar en ASM
-char* str_copy(char* a) {
-	char * res = malloc (strlen(a)+1);
-	strcpy(res, a);
-	return res;
-}
+/* //implementar en ASM */
+/* char* str_copy(char* a) { */
+/* 	char * res = malloc (strlen(a)+1); */
+/* 	strcpy(res, a); */
+/* 	return res; */
+/* } */
 
-//implementar en ASM
-int32_t str_cmp(char* a, char* b) {
-	return strcmp(a,b);
-}
+/* //implementar en ASM */
+/* int32_t str_cmp(char* a, char* b) { */
+/* 	return strcmp(a,b); */
+/* } */
