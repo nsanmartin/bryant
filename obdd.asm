@@ -46,29 +46,14 @@ extern is_true
 %define OBDD_MGR(ptr) qword [ptr + OBDD_MGR_OFFSET]
 %define OBDD_ROOT(ptr) qword [ptr + OBDD_ROOT_OFFSET]
         
-        
-
-        
 global obdd_mgr_mk_node
-;; /** implementar en ASM
-;; obdd_node*
-;;obdd_mgr_mk_node(obdd_mgr* mgr, char* var,
-        ;          obdd_node* high, obdd_node* low){
 
-;; 	uint32_t var_ID	= dictionary_add_entry(mgr->vars_dict, var);
-;; 	obdd_node* new_node	= malloc(sizeof(obdd_node));
-;; 	new_node->var_ID	= var_ID;
-;; 	new_node->node_ID	= obdd_mgr_get_next_node_ID(mgr);
-;; 	new_node->high_obdd	= high;
-;; 	if(high != NULL)
-;; 		high->ref_count++;
-;; 	new_node->low_obdd	= low;
-;; 	if(low != NULL)
-;; 		low->ref_count++;
-;; 	new_node->ref_count	= 0;
-;; 	return new_node;
-;; }
-;; **/
+;; obdd_node*
+;; obdd_mgr_mk_node(obdd_mgr* mgr,
+;;                  char* var,
+;;                  obdd_node* high,
+;;                  obdd_node* low)
+
 TRUE_VAR:    DB '1', 0
 FALSE_VAR: DB '0',0
 
@@ -230,12 +215,11 @@ obdd_node_apply:
         mov r14, rdx            ; r14 <- left_node
         mov r15, rcx            ; r15 <- right_node
 
-        ;debbug
+        ; debbug
         mov LEFT_VAR, 0
         mov RIGHT_VAR,0
         mov IS_LEFT_CONST,0
         mov IS_RIGHT_CONST,0
-        
         
         ; LEFT_VAR
         ;    <- dictionary_key_for_value(mgr->vars_dict,left_var_ID);
