@@ -10,17 +10,17 @@ int main() {
         
         unsigned i;
 
-        struct dictionary_t*d =  dictionary_create();
-        dictionary_add_entry (d, "clave");
-        dictionary_add_entry (d, "claveu");
-        dictionary_add_entry (d, "clavsdfe");
-        dictionary_add_entry (d, "clasdfve");
+        /* struct dictionary_t*d =  dictionary_create(); */
+        /* dictionary_add_entry (d, "clave"); */
+        /* dictionary_add_entry (d, "claveu"); */
+        /* dictionary_add_entry (d, "clavsdfe"); */
+        /* dictionary_add_entry (d, "clasdfve"); */
 
-        obdd_mgr* mgr = obdd_mgr_create();
-        struct dictionary_t *d0  = mgr -> vars_dict;
-        obdd_mgr_print(mgr);
-        obdd_mgr_destroy(mgr);
-        dictionary_destroy(d);
+        /* obdd_mgr* mgr = obdd_mgr_create(); */
+        /* struct dictionary_t *d0  = mgr -> vars_dict; */
+        /* obdd_mgr_print(mgr); */
+        /* obdd_mgr_destroy(mgr); */
+        /* dictionary_destroy(d); */
 
         return 0;
 }

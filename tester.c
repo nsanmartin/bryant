@@ -15,7 +15,7 @@ void casoObddGrande();
 
 int main() {
         casoManager();
-	/* casoObddChico(); */
+	casoObddChico();
 	casoObddGrande();
 
 	int err = open("cerr.log", O_RDWR|O_CREAT|O_APPEND, 0600);
