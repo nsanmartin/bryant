@@ -114,7 +114,7 @@ obdd_mgr*	obdd_mgr_create(){
 }
 
 void obdd_mgr_destroy(obdd_mgr* mgr){
-	// TODO: implementar funcion
+	// TODO:  funcion
         if ( mgr -> true_obdd )
                 obdd_destroy ( mgr -> true_obdd );
         if ( mgr -> false_obdd )
@@ -143,7 +143,7 @@ uint32_t obdd_mgr_get_next_node_ID(obdd_mgr* mgr){
 }
 
 
-/* implementar en ASM */
+/* en ASM */
 /* obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, */
 /*                             obdd_node* high, obdd_node* low); */
 obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node* low){
@@ -175,7 +175,7 @@ obdd*	obdd_mgr_false(obdd_mgr* mgr){ return mgr->false_obdd; }
 
 /** OBDD FUNCTIONS **/
 
-/** implementar en ASM
+/**  en ASM
 obdd* obdd_create(obdd_mgr* mgr, obdd_node* root);
 **/
 obdd* obdd_create(obdd_mgr* mgr, obdd_node* root){
@@ -185,7 +185,7 @@ obdd* obdd_create(obdd_mgr* mgr, obdd_node* root){
 	return new_obdd;
 }
 
-/** implementar en ASM
+/**  en ASM
 void obdd_destroy(obdd* root);
 **/
 void obdd_destroy(obdd* root){
@@ -329,7 +329,7 @@ obdd* obdd_apply(bool (*apply_fkt)(bool,bool), obdd *left, obdd* right){
 	return applied_obdd;
 }	
 
-/** implementar en ASM
+/** en ASM
 obdd_node*
 obdd_node_apply(bool (*apply_fkt)(bool,bool), 
                       obdd_mgr* mgr, 
@@ -442,11 +442,13 @@ obdd_node* obdd_node_restrict(obdd_mgr* mgr, obdd_node* root,
 
 obdd* obdd_exists(obdd* root, char* var){ 
 	// TODO: implementar funcion
+  assert(false);
 	return NULL;
 }
 
 obdd* obdd_forall(obdd* root, char* var){ 
 	// TODO: implementar funcion
+  assert(false);
 	return NULL;
 }
 
@@ -457,24 +459,25 @@ void obdd_print(obdd* root){
 }
 
 void obdd_node_print(obdd_mgr* mgr, obdd_node* root, uint32_t spaces){
+  assert(false);
 	// TODO: implementar funcion
 }
 
 bool is_true(obdd_mgr* mgr, obdd_node* root){
-	// TODO: implementar funcion
+	// TODO:  funcion
         uint32_t true_id = mgr -> true_obdd -> root_obdd -> var_ID;
         uint32_t id = root -> var_ID;
         return id == true_id;
 }
 bool is_constant(obdd_mgr* mgr, obdd_node* root){
-	// TODO: implementar funcion
+	// TODO:  funcion
         uint32_t true_id = mgr -> true_obdd -> root_obdd -> var_ID;
         uint32_t false_id = mgr -> false_obdd -> root_obdd -> var_ID;
         uint32_t id = root -> var_ID;
         return id == true_id || id == false_id;
 }
 
-//implementar en ASM
+// en ASM
 bool is_tautology(obdd_mgr* mgr, obdd_node* root){
 	if(is_constant(mgr, root)){
 		return is_true(mgr, root);
@@ -483,7 +486,7 @@ bool is_tautology(obdd_mgr* mgr, obdd_node* root){
 	}
 }
 
-//implementar en ASM
+//en ASM
 bool is_sat(obdd_mgr* mgr, obdd_node* root){
 	if(is_constant(mgr, root)){
 		return is_true(mgr, root);
@@ -494,7 +497,7 @@ bool is_sat(obdd_mgr* mgr, obdd_node* root){
 
 /** OBDD NODE FUNCTIONS **/
 
-//implementar en ASM
+// en ASM
 void obdd_node_destroy(obdd_node* node){
 	if(node->ref_count == 0){
 		if(node->high_obdd != NULL){
@@ -517,19 +520,19 @@ void obdd_node_destroy(obdd_node* node){
 
 /** AUX FUNCTIONS **/
 
-//implementar en ASM
+// en ASM
 uint32_t str_len(char* a) {
 	return strlen(a);
 }
 
-//implementar en ASM
+// en ASM
 char* str_copy(char* a) {
 	char * res = malloc (strlen(a)+1);
 	strcpy(res, a);
 	return res;
 }
 
-//implementar en ASM
+// en ASM
 int32_t str_cmp(char* a, char* b) {
 	return strcmp(a,b);
 }
