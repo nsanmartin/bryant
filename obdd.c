@@ -48,12 +48,18 @@ void dictionary_duplicate (struct dictionary_t* dict) {
 }
 
 uint32_t dictionary_add_entry(struct dictionary_t* dict, char* key){
-        if (dict -> size == dict -> max_size)
-                dictionary_duplicate (dict);
-        uint32_t res = dict -> size;
-        dict -> size ++;
-        dict -> entries [res] . key = str_copy (key);
-        dict -> entries [res] . value = res;
+        uint32_t res;
+        if ( dictionary_has_key (dict, key) ) {
+                res = dictionary_value_for_key (dict, key);
+        } else {
+                if (dict -> size == dict -> max_size)
+                        dictionary_duplicate (dict);
+
+                res = dict -> size;
+                dict -> size ++;
+                dict -> entries [res] . key = str_copy (key);
+                dict -> entries [res] . value = res;
+        }
 	return res;
 }
 
