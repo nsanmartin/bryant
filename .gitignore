@@ -9,3 +9,5 @@ aux
 *#*
 *.exe
 *.stackdump
+*.txt
+
