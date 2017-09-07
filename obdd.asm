@@ -419,11 +419,74 @@ obdd_node_apply:
         
 global is_tautology
 is_tautology:
+	push rbp
+	push rbx
+	push r12
+	mov rbp, rsp
+
+	mov rbx, rdi 		; rbx <- mgr
+	mov r12, rsi 		; rsi <- root
+	call is_constant
+	cmp rax, 0
+	je .no_es_const
+	mov rdi, rbx
+	mov rsi, r12
+	call is_true
+	jmp .return
+
+.no_es_const:
+	mov rdi, rbx
+	mov rsi, OBDD_NODE_HIGH(r12)
+	call is_tautology
+	cmp rax, 0
+	je .return
+	mov rdi, rbx
+	mov rsi, OBDD_NODE_LOW(r12)
+	call is_tautology
+	jmp .return
+
+.return:
+	
+	pop r12
+	pop rbx
+	pop rbp
         ret
 
 global is_sat
 is_sat:
+	push rbp
+	push rbx
+	push r12
+	mov rbp, rsp
+	
+	mov rbx, rdi 		; rbx <- mgr
+	mov r12, rsi 		; rsi <- root
+	call is_constant
+	cmp rax, 0
+	je .no_es_const
+	mov rdi, rbx
+	mov rsi, r12
+	call is_true
+	jmp .return
+	
+.no_es_const:
+	mov rdi, rbx
+	mov rsi, OBDD_NODE_HIGH(r12)
+	call is_sat
+	cmp rax, 0
+	jne .return
+	mov rdi, rbx
+	mov rsi, OBDD_NODE_LOW(r12)
+	call is_sat
+	jmp .return
+	
+.return:
+	
+	pop r12
+	pop rbx
+	pop rbp
         ret
+
 
 ;; uint32_t str_len(char* a);
 global str_len
