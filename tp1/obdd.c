@@ -115,7 +115,7 @@ uint32_t obdd_mgr_get_next_node_ID(obdd_mgr* mgr){
 	return previous_ID;
 }
 
-
+/** implementar en ASM
 obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node* low){
 	uint32_t var_ID		= dictionary_add_entry(mgr->vars_dict, var);
 	obdd_node* new_node	= malloc(sizeof(obdd_node));
@@ -130,6 +130,7 @@ obdd_node* obdd_mgr_mk_node(obdd_mgr* mgr, char* var, obdd_node* high, obdd_node
 	new_node->ref_count	= 0;
 	return new_node;
 }
+**/
 
 obdd*	obdd_mgr_var(obdd_mgr* mgr, char* name){
 	obdd* var_obdd	= malloc(sizeof(obdd));
@@ -145,13 +146,14 @@ obdd*	obdd_mgr_false(obdd_mgr* mgr){ return mgr->false_obdd; }
 
 /** OBDD FUNCTIONS **/
 
-
+/** implementar en ASM
 obdd* obdd_create(obdd_mgr* mgr, obdd_node* root){
 	obdd* new_obdd		= malloc(sizeof(obdd));
 	new_obdd->mgr		= mgr;
 	new_obdd->root_obdd	= root;
 	return new_obdd;
 }
+**/
 
 /** implementar en ASM
 void obdd_destroy(obdd* root){
