@@ -481,7 +481,7 @@ void obdd_node_print(obdd_mgr* mgr, obdd_node* root, uint32_t spaces){
 	char * nombre =
 		dictionary_key_for_value(mgr -> vars_dict, root -> var_ID);
 
-        if ( is_constant (mgr, root) ) { printf ("->%s\n", nombre); return; }
+        if ( is_constant (mgr, root) ) { printf ("->%s", nombre); return; }
 
         if (is_constant (mgr, root -> high_obdd)) {
                 printf ("\n%*s%s", spaces, "", nombre);
@@ -491,9 +491,9 @@ void obdd_node_print(obdd_mgr* mgr, obdd_node* root, uint32_t spaces){
         obdd_node_print (mgr, root -> high_obdd, spaces + 1);
         
         if (is_constant (mgr, root -> low_obdd)) {
-                printf ("%*s|\n%*s(!%s)", spaces, "",spaces, "", nombre);
+                printf ("\n%*s|\n%*s(!%s)", spaces, "",spaces, "", nombre);
         } else {
-                printf ("%*s|\n%*s(!%s) &", spaces, "",spaces, "", nombre);
+                printf ("\n%*s|\n%*s(!%s) &", spaces, "",spaces, "", nombre);
         }
         obdd_node_print (mgr, root -> low_obdd, spaces + 1);
 
