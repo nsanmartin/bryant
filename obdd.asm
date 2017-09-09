@@ -1,12 +1,4 @@
 ;; -*- mode:nasm -*-    
-extern free
-extern malloc
-extern dictionary_add_entry
-extern obdd_mgr_get_next_node_ID
-extern dictionary_key_for_value
-extern is_constant
-extern is_true
-extern obdd_mgr_destroy
 
 ;; OBDD MANAGER
 %define MGR_ID_OFFSET 0
@@ -45,7 +37,22 @@ extern obdd_mgr_destroy
         
 %define OBDD_MGR(ptr) qword [ptr + OBDD_MGR_OFFSET]
 %define OBDD_ROOT(ptr) qword [ptr + OBDD_ROOT_OFFSET]
-        
+
+
+segment .data
+TRUE_VAR:  DB '1', 0
+FALSE_VAR: DB '0', 0
+
+segment .text
+extern free
+extern malloc
+extern dictionary_add_entry
+extern obdd_mgr_get_next_node_ID
+extern dictionary_key_for_value
+extern is_constant
+extern is_true
+extern obdd_mgr_destroy
+
 global obdd_mgr_mk_node
 
 ;; obdd_node*
@@ -53,9 +60,6 @@ global obdd_mgr_mk_node
 ;;                  char* var,
 ;;                  obdd_node* high,
 ;;                  obdd_node* low)
-
-TRUE_VAR:    DB '1', 0
-FALSE_VAR: DB '0',0
 
 obdd_mgr_mk_node:
         push rbp
