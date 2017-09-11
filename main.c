@@ -57,6 +57,19 @@ void run_tests(){
 	puts(linea);
 
 
+        obdd_destroy (x1);
+        obdd_destroy (x2);
+        obdd_destroy (disyuncion_1 );
+        obdd_destroy (conjuncion_2 );
+        obdd_destroy (not_x1 );
+        obdd_destroy (si_y_no_3 );
+        obdd_destroy (not_conj);
+        obdd_destroy (conj_impl_4 );
+        obdd_destroy (not_eq );
+        obdd_destroy (not_not_eq );
+        obdd_destroy (existencial_5 );
+        obdd_mgr_destroy (new_mgr);        
+
 }
 
 int main (void){

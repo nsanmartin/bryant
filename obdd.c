@@ -454,8 +454,8 @@ obdd* obdd_exists(obdd* root, char* var){
 	obdd *f_x_true = obdd_restrict ( root, var, true );
 
 	obdd * res = obdd_apply_or (f_x_false, f_x_true);
-	/* obdd_destroy (f_x_false); */
-	/* obdd_destroy (f_x_true); */
+	obdd_destroy (f_x_false);
+	obdd_destroy (f_x_true);
 	return res;
 }
 
@@ -466,6 +466,8 @@ obdd* obdd_forall(obdd* root, char* var){
 	obdd *f_x_true = obdd_restrict ( root, var, true );
 
 	obdd * res = obdd_apply_and (f_x_false, f_x_true);
+        obdd_destroy (f_x_false);
+	obdd_destroy (f_x_true);
 
 	return NULL;
 }

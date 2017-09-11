@@ -1,0 +1,63 @@
+
+-------------------------------------------------------------
+2.1	x1 || x2
+
+[OBDD]
+Mgr_ID:1
+Value:
+x1->1
+|
+(!x1) &
+ x2->1
+ |
+ (!x2)->0
+
+La formula es satisfacible y no tautologia
+-------------------------------------------------------------
+2.2	x1 && x2
+
+[OBDD]
+Mgr_ID:1
+Value:
+x1 &
+ x2->1
+ |
+ (!x2)->0
+|
+(!x1)->0
+
+La formula es satisfacible y no tautologia
+-------------------------------------------------------------
+2.3	x1 && ~x1
+
+[OBDD]
+Mgr_ID:1
+Value:
+x1->0
+|
+(!x1)->0
+
+La formula es no satisfacible (contradiccion) y no tautologia
+-------------------------------------------------------------
+2.4	(x1 && x2) -> x1
+
+[OBDD]
+Mgr_ID:1
+Value:
+x1->1
+|
+(!x1)->1
+
+La formula es satisfacible y tautologia
+-------------------------------------------------------------
+2.5	(existe x2) : x2 <=> (x1 && ~x1)
+
+[OBDD]
+Mgr_ID:1
+Value:
+x1->1
+|
+(!x1)->1
+
+La formula es satisfacible y tautologia
+-------------------------------------------------------------
